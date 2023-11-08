@@ -23,15 +23,15 @@ int main(int argc, char **argv, char **env) {
   // init Vbuddy
   if (vbdOpen()!=1) return(-1);
   vbdHeader("L2T3:Delay");
-  //vbdSetMode(1);        // Flag mode set to one-shot
+  //       // Flag mode set to one-shot
 
   // initialize simulation input 
   top->clk = 1;
   top->rst = 0;
-  top->wr = 1;
-  top->rd = 1;
+  top->wen = 1;
+  top->en = 1;
   top->offset = 64;
-  
+  top->incr = 1;
   // intialize variables for analogue output
   vbdInitMicIn(RAM_SZ);
 
@@ -43,17 +43,17 @@ int main(int argc, char **argv, char **env) {
       top->clk = !top->clk;
       top->eval ();
     }
-    top->mic_signal = vbdMicValue();
-    top->offset = abs(vbdValue());     // adjust delay by changing incr
-
+    top->sig = vbdMicValue();
+    //top->dout = abs(vbdValue());     // adjust delay by changing incr
+    //top->rst = vbdFlag();
     // plot RAM input/output, send sample to DAC buffer, and print cycle count
-    vbdPlot(int (top->mic_signal), 0, 255);
-    vbdPlot(int (top->delayed_signal), 0, 255);
+    vbdPlot(int (top->sig), 0, 255);
+    vbdPlot(int (top->dout), 0, 255);
     vbdCycle(simcyc);
 
     // either simulation finished, or 'q' is pressed
     if ((Verilated::gotFinish()) || (vbdGetkey()=='q')) 
-      exit(0);
+      break;
   }
 
   vbdClose();     // ++++
